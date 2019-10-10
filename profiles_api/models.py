@@ -25,7 +25,7 @@ class UserProfileManager(BaseUserManager):
         if not email:
             raise ValueError('Email is a required field')
 
-        email = self.normalize_username(email)
+        email = self.normalize_email(email)
         user = self.model(email=email, name=name)
 
         user.set_password(password)
@@ -33,7 +33,7 @@ class UserProfileManager(BaseUserManager):
         
         return user
 
-    def create_super_user(self, email, name, password):
+    def create_superuser(self, email, name, password):
         """creates a new user profile
 
         Arguments:
@@ -66,6 +66,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
+    objects = UserProfileManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
