@@ -6,11 +6,7 @@ from django.contrib.auth.models import (AbstractBaseUser, PermissionsMixin,
 
 
 class UserProfileManager(BaseUserManager):
-    """manager for user profiles
-
-    Arguments:
-        BaseUserManager {[type]} -- [description]
-    """
+    """manager for user profiles"""
 
     def create_user(self, email, name, password=None):
         """creates a new user profile
@@ -37,11 +33,11 @@ class UserProfileManager(BaseUserManager):
         """creates a new user profile
 
         Arguments:
-            email {[type]} -- [description]
-            name {[type]} -- [description]
+            email string -- [description]
+            name string -- [description]
 
         Keyword Arguments:
-            password {[type]} -- [description] (default: {None})
+            password alphanumeric -- [description] (default: {None})
         """
         user = self.create_user(email, name, password)
         
