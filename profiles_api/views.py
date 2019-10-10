@@ -5,9 +5,9 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework import filters
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
+from rest_framework.permissions import IsAuthenticated
 
-from profiles_api import serializers,models,permissions
-
+from profiles_api import serializers, models, permissions
 
 
 class HelloApiView(APIView):
@@ -111,41 +111,39 @@ class HelloViewSet(viewsets.ViewSet):
         a_viewset = [
             'uses actions list,create,retrieve,update,partial_update'
         ]
-        
-        return Response({'message':'Hello','a_viewset':a_viewset})
 
-    
-    def create(self,request):
+        return Response({'message': 'Hello', 'a_viewset': a_viewset})
+
+    def create(self, request):
         """ create a new hello message """
         serializer = self.serializer_class(data=request.data)
-        
+
         if serializer.is_valid():
             name = serializer.validated_data.get('name')
             message = f'Hello {name}'
-            return Response({'message':message})
+            return Response({'message': message})
         else:
             return Response(
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
-    def retrieve(self,request,pk=None):
+
+    def retrieve(self, request, pk=None):
         """ retrieve object by id"""
-        return Response({'http_method':'GET'})
-    
-    
-    def update(self,request,pk=None):
+        return Response({'http_method': 'GET'})
+
+    def update(self, request, pk=None):
         """ update object by id"""
-        return Response({'http_method':'PUT'})
-    
-    def partial_update(self,request,pk=None):
+        return Response({'http_method': 'PUT'})
+
+    def partial_update(self, request, pk=None):
         """ partial update of object by id """
-        return Response({'http_method':'PATCH'})
-    
-    def destroy(self,request,pk=None):
+        return Response({'http_method': 'PATCH'})
+
+    def destroy(self, request, pk=None):
         """ delete object by id """
-        return Response({'http_method':'DELETE'})
-        
+        return Response({'http_method': 'DELETE'})
+
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     """ handles creating and updating users"""
@@ -154,9 +152,20 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name','email',)
-    
+    search_fields = ('name', 'email',)
+
 
 class UserLoginApiView(ObtainAuthToken):
     """handles user auth tokens"""
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+class UserProfileFeedViewSet(viewsets.ModelViewSet):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UpdateOwnFeedItem,IsAuthenticated)
+    serializer_class = serializers.ProfileFeedItemSerializer
+    queryset = models.ProfileFeedItem.objects.all()
+
+    def perform_create(self, serializer):
+        """ setsu the user profile to the logged in user"""
+        serializer.save(user_profile=self.request.user)
